@@ -7,8 +7,8 @@ use App\Restaurant;
 
 class RestaurantController extends Controller
 {
-public function index(Request $request)
-{
+    public function index(Request $request)
+    {
         $name = $request->name;
         $category = $request->category;
         $query = Restaurant::query();
@@ -16,9 +16,11 @@ public function index(Request $request)
             $query->where('name', 'like', '%' . $name . '%');
         }
         if($category) {
-            $query->where('category', 'like', '%' . $category . '%');
+            $query->whereHas('Category', function($q) use ($category){
+            $q->where('name', 'like', '%' . $category . '%');
+        });
         }
-        $restaurants = $query->simplePaginate(10);
+        $restaurants = $query->simplePaginate(5);
         // appends = 配列の最後尾に渡す compact = 連想配列を渡す
         $restaurants->appends(compact('name', 'category'));
         return view('restaurants.index', compact('restaurants'));
@@ -31,8 +33,7 @@ public function index(Request $request)
     // }
 
     // $restaurants = Restaurant::simplepaginate(10);
-    
-}
+    }
     
     public function show($id)
     {
